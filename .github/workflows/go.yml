@@ -1,0 +1,22 @@
+name: relay (starts the status refresh of melaleuca-cart)
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: "full or quick"
+        required: true
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start the refresh
+        env:
+          GH_TOKEN: ${{ secrets.MAIN_PAT }}
+          KIND: ${{ github.event.inputs.kind }}
+        run: |
+          case "$KIND" in
+            full) wf=status_full.yml ;;
+            quick) wf=status_quick.yml ;;
+            *) echo "unknown kind"; exit 1 ;;
+          esac
+          gh workflow run "$wf" -R Rodantmat/melaleuca-cart --ref main
